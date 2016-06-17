@@ -1,0 +1,14 @@
+module Sphinxing {
+    
+	module Base {
+        umbrella "sphinxbase"
+        link "sphinxbase"
+        link "sphinxad"
+	}
+    
+    module Pocket {
+        umbrella header "pocketsphinx/pocketsphinx.h"
+        link "pocketsphinx"
+        export Base
+    }
+}
