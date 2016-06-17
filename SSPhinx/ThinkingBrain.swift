@@ -24,7 +24,7 @@ public class ThinkingBrain: NSObject {
     var hmm:String!
     var lm:String!
     var dict:String!
-
+    
     
     
     private let bgQue = dispatch_queue_create(
@@ -35,7 +35,7 @@ public class ThinkingBrain: NSObject {
     
     public override init() {
         super.init()
-       
+        
         self.createBrain()
     }
     
@@ -83,14 +83,14 @@ public class ThinkingBrain: NSObject {
     public func listen() {
         
         
-            dispatch_async(self.bgQue) {
-                [unowned self] in
-                let x = self.thinkingBrainEngine?.shouldProcess
-                if x != nil {
-                    self.thinkingBrainEngine!.shouldListen = true
-                    print("Brain Disolved")
-                }
+        dispatch_async(self.bgQue) {
+            [unowned self] in
+            let x = self.thinkingBrainEngine?.shouldProcess
+            if x != nil {
+                self.thinkingBrainEngine!.shouldListen = true
+                print("Brain Disolved")
             }
+        }
         
     }
     
@@ -114,24 +114,27 @@ public class ThinkingBrain: NSObject {
             
             
             let outPutTerminated = outputString.stringByAppendingString(added)
-            
-            dispatch_async(dispatch_get_main_queue(), {
+            autoreleasepool {
                 [unowned self] in
-                if let thought = self.reactor {
-                    thought.newThoughtArised(outPutTerminated, score: hyp.score)
-                }
-                })
+                dispatch_async(dispatch_get_main_queue(), {
+                    [unowned self] in
+                    if let thought = self.reactor {
+                        thought.newThoughtArised(outPutTerminated, score: hyp.score)
+                    }
+                    })
+            }
             
         } else {
-            
-            let outPutTerminated = outputString
-            dispatch_async(dispatch_get_main_queue(), {
+            autoreleasepool {
                 [unowned self] in
-                if let reaction = self.reactor {
-                    reaction.newReationArised(outPutTerminated,score: hyp.score)
-                }
-            })
-            
+                let outPutTerminated = outputString
+                dispatch_async(dispatch_get_main_queue(), {
+                    [unowned self] in
+                    if let reaction = self.reactor {
+                        reaction.newReationArised(outPutTerminated,score: hyp.score)
+                    }
+                    })
+            }
         }
         
         
