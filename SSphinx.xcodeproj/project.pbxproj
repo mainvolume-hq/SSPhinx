@@ -263,20 +263,23 @@
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
 				FRAMEWORK_VERSION = A;
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/include/pocketsphinx\"/**",
-					"\"$(SRCROOT)/include/sphinxbase\"/**",
+					"\"$(SRCROOT)/Sphinx/include/pocketsphinx\"",
+					"\"$(SRCROOT)/Sphinx/include/sphinxbase\"",
 				);
 				INFOPLIST_FILE = SSPhinx/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/lib\"/**";
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SRCROOT)/Sphinx/lib/pocketsphinx\"/**",
+					"\"$(SRCROOT)/Sphinx/lib/sphinxbase\"/**",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mainvolume.SSPhinx;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = "\"$(SRCROOT)/include\"/**";
+				SWIFT_INCLUDE_PATHS = "\"$(SRCROOT)/Sphinx/include\"";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -295,20 +298,23 @@
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
 				FRAMEWORK_VERSION = A;
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/include/pocketsphinx\"/**",
-					"\"$(SRCROOT)/include/sphinxbase\"/**",
+					"\"$(SRCROOT)/Sphinx/include/pocketsphinx\"",
+					"\"$(SRCROOT)/Sphinx/include/sphinxbase\"",
 				);
 				INFOPLIST_FILE = SSPhinx/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/lib\"/**";
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SRCROOT)/Sphinx/lib/pocketsphinx\"/**",
+					"\"$(SRCROOT)/Sphinx/lib/sphinxbase\"/**",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mainvolume.SSPhinx;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = "\"$(SRCROOT)/include\"/**";
+				SWIFT_INCLUDE_PATHS = "\"$(SRCROOT)/Sphinx/include\"";
 			};
 			name = Release;
 		};

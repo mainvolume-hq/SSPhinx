@@ -37,11 +37,11 @@ public class Decoder:NSObject {
     private var speechState: SpeechStateEnum
     
     public var bufferSize: Int = 2048
-
+    
     public var shouldProcess = false
     public var shouldListen = false
     public init?(config: Config) {
- 
+        
         speechState = .Silence
         
         if config.cmdLnConf != nil{
@@ -50,6 +50,7 @@ public class Decoder:NSObject {
             if psDecoder == nil {
                 return nil
             }
+            
         } else {
             psDecoder = nil
             return nil
@@ -67,7 +68,6 @@ public class Decoder:NSObject {
     }
     
     private func process_raw(data: NSData) -> CInt {
-        //Sphinx expect words of 2 bytes but the NSFileHandle read one byte at time so the lenght of the data for sphinx is the half of the real one.
         
         let dataLenght = data.length / 2
         let numberOfFrames = ps_process_raw(psDecoder, UnsafePointer(data.bytes), dataLenght, 0, 0)
@@ -142,7 +142,7 @@ public class Decoder:NSObject {
         
         engine.stop()
         engine.mainMixerNode.removeTapOnBus(0)
-                print("-----------------------------------------Freeing stuff")
+        print("-----------------------------------------Freeing stuff")
     }
     
     
@@ -150,41 +150,41 @@ public class Decoder:NSObject {
         
         autoreleasepool {
             [unowned self] in
-            self.shouldProcess = true
-            self.engine.stop()
-            self.engine.reset()
-            self.engine = AVAudioEngine()
             
-            let input = self.engine.inputNode!
-            let formatIn = AVAudioFormat(commonFormat: .PCMFormatInt16, sampleRate: 44100, channels: 1, interleaved: false)
-            self.engine.connect(input, to: self.engine.outputNode, format: formatIn)
-            
-            assert(self.engine.inputNode != nil)
-            
-            input.installTapOnBus(0, bufferSize: 4096, format: formatIn, block:
-                {[unowned self] (buffer: AVAudioPCMBuffer!, time: AVAudioTime!) -> Void in
-                    
-                    let data = self.toNSData(buffer)
-                    if data.length > 0 {
-                        if self.shouldProcess && self.shouldListen{
-                            self.process_raw(data)
-                            if self.speechState == .Utterance {
-                                self.end_utt()
-                                utteranceComplete(self.get_hyp())
-                                self.start_utt()
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+                [unowned self] in
+                self.shouldProcess = true
+                self.engine.stop()
+                self.engine.reset()
+                self.engine = AVAudioEngine()
+                
+                let input = self.engine.inputNode!
+                let formatIn = AVAudioFormat(commonFormat: .PCMFormatInt16, sampleRate: 44100, channels: 1, interleaved: false)
+                self.engine.connect(input, to: self.engine.outputNode, format: formatIn)
+                
+                assert(self.engine.inputNode != nil)
+                
+                input.installTapOnBus(0, bufferSize: 4096, format: formatIn, block:
+                    {[unowned self] (buffer: AVAudioPCMBuffer!, time: AVAudioTime!) -> Void in
+                        
+                        let data = self.toNSData(buffer)
+                        if data.length > 0 {
+                            if self.shouldProcess && self.shouldListen{
+                                self.process_raw(data)
+                                if self.speechState == .Utterance {
+                                    self.end_utt()
+                                    utteranceComplete(self.get_hyp())
+                                    self.start_utt()
+                                }
                             }
                         }
-                    }
-                })
-            
-            self.engine.mainMixerNode.outputVolume = 0.0
-            self.start_utt()
-            self.engine.prepare()
-            try! self.engine.start()
-         
-            
+                    })
+                
+                self.engine.mainMixerNode.outputVolume = 0.0
+                self.start_utt()
+                self.engine.prepare()
+                try! self.engine.start()
+            }
         }
     }
-    
-    
 }
