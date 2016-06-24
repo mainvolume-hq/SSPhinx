@@ -99,27 +99,13 @@ public class ThinkingBrain: NSObject {
         let outputString:NSString = hyp.text ?? ""
         
         if outputString.length > 1 {
-            var added:String
-            let ø = GKRandomSource.sharedRandom().nextIntWithUpperBound(7)
-            switch ø {
-            case 1:
-                added = "?"
-            case 2:
-                added = "."
-            case 3:
-                added = "!"
-            default:
-                added = "."
-            }
-            
-            
-            let outPutTerminated = outputString.stringByAppendingString(added)
+           
             autoreleasepool {
                 [unowned self] in
                 dispatch_async(dispatch_get_main_queue(), {
                     [unowned self] in
                     if let thought = self.reactor {
-                        thought.newThoughtArised(outPutTerminated, score: hyp.score)
+                        thought.newThoughtArised(outputString, score: hyp.score)
                     }
                     })
             }

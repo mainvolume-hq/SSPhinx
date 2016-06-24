@@ -12,12 +12,10 @@
 		AED1DFB71D1453170010EE0D /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED1DFB11D1453170010EE0D /* Config.swift */; };
 		AED1DFB81D1453170010EE0D /* Hypotesis.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED1DFB21D1453170010EE0D /* Hypotesis.swift */; };
 		AED1DFB91D1453170010EE0D /* SSPhinx.h in Headers */ = {isa = PBXBuildFile; fileRef = AED1DFB31D1453170010EE0D /* SSPhinx.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		AED1DFD41D145AAD0010EE0D /* ThinkingBrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED1DFAD1D1452DB0010EE0D /* ThinkingBrain.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		AE4F15851CE9208500F16399 /* SSPhinx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SSPhinx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		AED1DFAD1D1452DB0010EE0D /* ThinkingBrain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThinkingBrain.swift; sourceTree = "<group>"; };
 		AED1DFAF1D1453170010EE0D /* Globals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		AED1DFB01D1453170010EE0D /* Decoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Decoder.swift; sourceTree = "<group>"; };
 		AED1DFB11D1453170010EE0D /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
@@ -56,7 +54,6 @@
 		AE4F15861CE9208500F16399 /* SSPhinx */ = {
 			isa = PBXGroup;
 			children = (
-				AED1DFAD1D1452DB0010EE0D /* ThinkingBrain.swift */,
 				AED1DFB41D1453170010EE0D /* Info.plist */,
 				AED1DFAF1D1453170010EE0D /* Globals.swift */,
 				AED1DFB01D1453170010EE0D /* Decoder.swift */,
@@ -147,7 +144,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AED1DFD41D145AAD0010EE0D /* ThinkingBrain.swift in Sources */,
 				AED1DFB51D1453170010EE0D /* Globals.swift in Sources */,
 				AED1DFB71D1453170010EE0D /* Config.swift in Sources */,
 				AED1DFB81D1453170010EE0D /* Hypotesis.swift in Sources */,
