@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA2443941D70C5B70011E9E3 /* Listener.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2443931D70C5B70011E9E3 /* Listener.swift */; };
 		AED1DFB51D1453170010EE0D /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED1DFAF1D1453170010EE0D /* Globals.swift */; };
 		AED1DFB61D1453170010EE0D /* Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED1DFB01D1453170010EE0D /* Decoder.swift */; };
 		AED1DFB71D1453170010EE0D /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED1DFB11D1453170010EE0D /* Config.swift */; };
@@ -15,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AA2443931D70C5B70011E9E3 /* Listener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Listener.swift; sourceTree = "<group>"; };
 		AE4F15851CE9208500F16399 /* SSPhinx.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SSPhinx.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AED1DFAF1D1453170010EE0D /* Globals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
 		AED1DFB01D1453170010EE0D /* Decoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Decoder.swift; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 				AED1DFB11D1453170010EE0D /* Config.swift */,
 				AED1DFB21D1453170010EE0D /* Hypotesis.swift */,
 				AED1DFB31D1453170010EE0D /* SSPhinx.h */,
+				AA2443931D70C5B70011E9E3 /* Listener.swift */,
 			);
 			path = SSPhinx;
 			sourceTree = "<group>";
@@ -104,11 +107,12 @@
 			attributes = {
 				LastSwiftMigration = 0720;
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = "Bruno Berisso";
 				TargetAttributes = {
 					AE4F15841CE9208500F16399 = {
 						CreatedOnToolsVersion = 7.3.1;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -148,6 +152,7 @@
 				AED1DFB71D1453170010EE0D /* Config.swift in Sources */,
 				AED1DFB81D1453170010EE0D /* Hypotesis.swift in Sources */,
 				AED1DFB61D1453170010EE0D /* Decoder.swift in Sources */,
+				AA2443941D70C5B70011E9E3 /* Listener.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,6 +252,7 @@
 		AE4F158B1CE9208500F16399 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -256,7 +262,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
 				FRAMEWORK_VERSION = A;
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/Sphinx/include/pocketsphinx\"",
@@ -277,12 +282,14 @@
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "\"$(SRCROOT)/Sphinx/include\"";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
 		AE4F158C1CE9208500F16399 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -291,7 +298,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = NO;
 				FRAMEWORK_VERSION = A;
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/Sphinx/include/pocketsphinx\"",
@@ -306,11 +312,14 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MODULEMAP_FILE = "";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mainvolume.SSPhinx;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_INCLUDE_PATHS = "\"$(SRCROOT)/Sphinx/include\"";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};

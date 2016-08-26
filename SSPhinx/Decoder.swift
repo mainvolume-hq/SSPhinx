@@ -12,6 +12,7 @@ import Sphinxing
 
 
 
+
 private enum SpeechStateEnum : CustomStringConvertible {
     case Silence
     case Speech
@@ -31,15 +32,26 @@ private enum SpeechStateEnum : CustomStringConvertible {
     }
 }
 
-public class Decoder:NSObject {
+
+private extension AVAudioPCMBuffer {
+    
+    func toNSDate() -> NSData {
+        let channels = UnsafeBufferPointer(start: int16ChannelData, count: 1)
+        let ch0Data = NSData(bytes: channels[0], length:Int(frameCapacity * format.streamDescription.memory.mBytesPerFrame))
+        return ch0Data
+    }
+    
+}
+
+
+public class Decoder {
     
     private var psDecoder: COpaquePointer
+    private var engine: AVAudioEngine!
     private var speechState: SpeechStateEnum
     
     public var bufferSize: Int = 2048
     
-    public var shouldProcess = false
-    public var shouldListen = false
     public init?(config: Config) {
         
         speechState = .Silence
@@ -55,23 +67,18 @@ public class Decoder:NSObject {
             psDecoder = nil
             return nil
         }
-        
-        
     }
     
     deinit {
-        self.stopListening()
-        self.shouldProcess = false
-        print("Releasing Decoder")
         let refCount = ps_free(psDecoder)
         assert(refCount == 0, "Can't free decoder, it's shared among instances")
     }
     
     private func process_raw(data: NSData) -> CInt {
-        
+        //Sphinx expect words of 2 bytes but the NSFileHandle read one byte at time so the lenght of the data for sphinx is the half of the real one.
         let dataLenght = data.length / 2
-        let numberOfFrames = ps_process_raw(psDecoder, UnsafePointer(data.bytes), dataLenght, 0, 0)
-        let hasSpeech = in_sppech()
+        let numberOfFrames = ps_process_raw(psDecoder, UnsafePointer(data.bytes), dataLenght, SFalse, SFalse)
+        let hasSpeech = in_speech()
         
         switch (speechState) {
         case .Silence where hasSpeech:
@@ -87,7 +94,7 @@ public class Decoder:NSObject {
         return numberOfFrames
     }
     
-    private func in_sppech() -> Bool {
+    private func in_speech() -> Bool {
         return ps_get_in_speech(psDecoder) == 1
     }
     
@@ -99,92 +106,121 @@ public class Decoder:NSObject {
         return ps_end_utt(psDecoder) == 0
     }
     
+    private func free_engine() -> Bool {
+        return ps_free(psDecoder) == 0
+    }
+    
     private func get_hyp() -> Hypotesis? {
         var score: CInt = 0
         let string: UnsafePointer<CChar> = ps_get_hyp(psDecoder, &score)
         
         if let text = String.fromCString(string) {
-            print(text)
             return Hypotesis(text: text, score: Int(score))
         } else {
             return nil
         }
     }
     
-    
-    
-    var timer: NSTimer!
-    
-    
-    func toNSData(PCMBuffer: AVAudioPCMBuffer) -> NSData {
+    private func hypotesisForSpeechAtPath (filePath: String) -> Hypotesis? {
         
-        let channelCount = 1  // given PCMBuffer channel count is 1
-        let channels = UnsafeBufferPointer(start: PCMBuffer.int16ChannelData, count: channelCount)
-        let ch0Data = NSData(bytes: channels[0], length:Int(PCMBuffer.frameCapacity * PCMBuffer.format.streamDescription.memory.mBytesPerFrame))
-        return ch0Data
-    }
-    
-    
-    
-    //
-    var engine = AVAudioEngine()
-    var audioBuffer = AVAudioPCMBuffer()
-    
-    
-    
-    func stopListening() {
-        self.shouldListen = false
-        self.end_utt()
-    }
-    
-    
-    public func disolve () {
-        
-        engine.stop()
-        engine.mainMixerNode.removeTapOnBus(0)
-        print("-----------------------------------------Freeing stuff")
-    }
-    
-    
-    public func startDecodingSpeech ( utteranceComplete:  (Hypotesis?) -> ()) {
-        
-        autoreleasepool {
-            [unowned self] in
+        if let fileHandle = NSFileHandle(forReadingAtPath: filePath) {
             
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-                [unowned self] in
-                self.shouldProcess = true
-                self.engine.stop()
-                self.engine.reset()
-                self.engine = AVAudioEngine()
+            start_utt()
+            
+            let hypothesis = fileHandle.reduceChunks(bufferSize, initial: nil, reducer: { [unowned self] (data: NSData, partialHyp: Hypotesis?) -> Hypotesis? in
                 
-                let input = self.engine.inputNode!
-                let formatIn = AVAudioFormat(commonFormat: .PCMFormatInt16, sampleRate: 44100, channels: 1, interleaved: false)
-                self.engine.connect(input, to: self.engine.outputNode, format: formatIn)
+                self.process_raw(data)
                 
-                assert(self.engine.inputNode != nil)
+                var resultantHyp = partialHyp
+                if self.speechState == .Utterance {
+                    
+                    self.end_utt()
+                    resultantHyp = partialHyp + self.get_hyp()
+                    self.start_utt()
+                }
                 
-                input.installTapOnBus(0, bufferSize: 4096, format: formatIn, block:
-                    {[unowned self] (buffer: AVAudioPCMBuffer!, time: AVAudioTime!) -> Void in
-                        
-                        let data = self.toNSData(buffer)
-                        if data.length > 0 {
-                            if self.shouldProcess && self.shouldListen{
-                                self.process_raw(data)
-                                if self.speechState == .Utterance {
-                                    self.end_utt()
-                                    utteranceComplete(self.get_hyp())
-                                    self.start_utt()
-                                }
-                            }
-                        }
-                    })
-                
-                self.engine.mainMixerNode.outputVolume = 0.0
-                self.start_utt()
-                self.engine.prepare()
-                try! self.engine.start()
+                return resultantHyp
+                })
+            
+            end_utt()
+            fileHandle.closeFile()
+            
+            //Process any pending speech
+            if speechState == .Speech {
+                return hypothesis + get_hyp()
+            } else {
+                return hypothesis
+            }
+            
+        } else {
+            return nil
+        }
+    }
+    
+    public func decodeSpeechAtPath (filePath: String, complete: (Hypotesis?) -> ()) {
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+            
+            let hypothesis = self.hypotesisForSpeechAtPath(filePath)
+            
+            dispatch_async(dispatch_get_main_queue()) {
+                complete(hypothesis)
             }
         }
     }
+    
+    public func startDecodingSpeech (utteranceComplete: (Hypotesis?) -> ()) {
+        
+              
+        engine = AVAudioEngine()
+        
+        guard let input = engine.inputNode else {
+            print("Can't get input node")
+            return
+        }
+        
+        let formatIn = AVAudioFormat(commonFormat: .PCMFormatInt16, sampleRate: 44100, channels: 1, interleaved: false)
+        engine.connect(input, to: engine.outputNode, format: formatIn)
+        
+        input.installTapOnBus(0, bufferSize: 4096, format: formatIn, block: {(buffer: AVAudioPCMBuffer!, time: AVAudioTime!) -> Void in
+            
+            let audioData = buffer.toNSDate()
+            self.process_raw(audioData)
+            
+            if self.speechState == .Utterance {
+                
+                self.end_utt()
+                let hypothesis = self.get_hyp()
+                
+                dispatch_async(dispatch_get_main_queue(), {
+                    utteranceComplete(hypothesis)
+                })
+                
+                self.start_utt()
+            }
+        })
+        
+        engine.mainMixerNode.outputVolume = 0.0
+        engine.prepare()
+        
+        start_utt()
+        
+        do {
+            try engine.start()
+        } catch let error as NSError {
+            end_utt()
+            print("Can't start AVAudioEngine: \(error)")
+        }
+    }
+    
+    public func stopDecodingSpeech () {
+        
+        engine.stop()
+        engine.mainMixerNode.removeTapOnBus(0)
+        engine.reset()
+        engine = nil
+        
+    }
+    
+    
 }
